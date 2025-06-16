@@ -24,7 +24,14 @@ app.use('/api/search', require('./routes/search'));
 
 // Test route
 app.get('/', (req, res) => {
-    res.json({ message: 'Welcome to VivahSetu API' });
+    res.json({ 
+        message: 'Welcome to VivahSetu API',
+        endpoints: {
+            auth: '/api/auth',
+            profile: '/api/profile',
+            search: '/api/search'
+        }
+    });
 });
 
 const PORT = process.env.PORT || 5000;
