@@ -17,14 +17,15 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(() => console.log('MongoDB Connected'))
 .catch(err => console.log(err));
 
-// Test route
+// Basic test route
 app.get('/', (req, res) => {
     res.json({ message: 'Welcome to VivahSetu API' });
 });
 
-// Routes (we'll add these next)
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/profile', require('./routes/profile'));
+// Basic test route for users
+app.get('/api/test', (req, res) => {
+    res.json({ message: 'API is working' });
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
