@@ -13,16 +13,6 @@ const io = socketio(server);
 app.use(cors());
 app.use(express.json());
 
-// Socket.io
-app.set('io', io);
-io.on('connection', (socket) => {
-    console.log('Client connected');
-    
-    socket.on('join', (userId) => {
-        socket.join(userId);
-    });
-});
-
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
@@ -36,7 +26,8 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/profile', require('./routes/profile'));
 app.use('/api/search', require('./routes/search'));
 app.use('/api/photo', require('./routes/photo'));
-app.use('/api/premium', require('./routes/premium'));
+// We'll add premium routes later
+// app.use('/api/premium', require('./routes/premium'));
 app.use('/api/chat', require('./routes/chat'));
 
 // Test route
