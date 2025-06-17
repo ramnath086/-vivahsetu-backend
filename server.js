@@ -22,6 +22,8 @@ mongoose.connect(process.env.MONGO_URI, {
 .catch(err => console.log(err));
 
 // Routes
+// Add this line with other routes
+app.use('/api/interest', require('./routes/interest'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/profile', require('./routes/profile'));
 app.use('/api/search', require('./routes/search'));
