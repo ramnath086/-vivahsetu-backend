@@ -16,6 +16,60 @@ app.get('/', (req, res) => {
         status: 'running'
     });
 });
+// Add this new route to your server.js
+
+// Search Profiles
+app.post('/api/search', async (req, res) => {
+    try {
+        const {
+            gender,
+            ageFrom,
+            ageTo,
+            caste,
+            location
+        } = req.body;
+
+        // For now, return filtered dummy data
+        const profiles = [
+            {
+                name: "Test Profile 1",
+                gender: "Male",
+                age: 28,
+                caste: "Hindu",
+                location: "Mumbai",
+                education: "B.Tech",
+                occupation: "Software Engineer"
+            },
+            {
+                name: "Test Profile 2",
+                gender: "Female",
+                age: 25,
+                caste: "Hindu",
+                location: "Delhi",
+                education: "M.B.A",
+                occupation: "Business Analyst"
+            }
+        ];
+
+        res.json({
+            message: "Search results",
+            results: profiles,
+            filters: {
+                gender,
+                ageFrom,
+                ageTo,
+                caste,
+                location
+            }
+        });
+
+    } catch (err) {
+        res.status(500).json({ 
+            error: 'Search failed',
+            message: err.message 
+        });
+    }
+});
 
 // Create Profile
 app.post('/api/profile/create', async (req, res) => {
