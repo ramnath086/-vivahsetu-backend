@@ -8,6 +8,11 @@ const userSchema = new mongoose.Schema({
     
     // Advanced Profile
     profile: {
+    // ... other fields ...
+    photo: String,
+    additionalPhotos: [String]  // For premium users
+}
+    profile: {
         // Personal Details
         gender: String,
         dob: Date,
