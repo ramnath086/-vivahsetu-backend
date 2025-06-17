@@ -16,6 +16,7 @@ app.use((req, res, next) => {
 });
 
 // Test route
+app.use('/api/auth', require('./routes/auth'));
 app.get('/', (req, res) => {
     res.json({ 
         message: 'Welcome to VivahSetu API',
