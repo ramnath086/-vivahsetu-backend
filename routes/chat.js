@@ -2,44 +2,60 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const Message = require('../models/Message');
+const User = require('../models/User');
 
 // Send message
-router.post('/send', auth, async (req, res) => {
+router.post('/send/:userId', auth, async (req, res) => {
     try {
-        const { to, content } = req.body;
-        
+        const receiver = await User.findById(req.params.userId);
+        if (!receiver) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+
         const message = new Message({
-            from: req.user.id,
-            to,
-            content
+            sender: req.user.id,
+            receiver: req.params.userId,
+            content: req.body.content
         });
-        
+
         await message.save();
-        
-        // Socket.io will handle real-time delivery
-        req.app.get('io').to(to).emit('newMessage', message);
-        
         res.json(message);
     } catch (err) {
-        res.status(500).send('Message sending failed');
+        res.status(500).send('Server Error');
     }
 });
 
-// Get conversations
+// Get chat history
+router.get('/history/:userId', auth, async (req, res) => {
+    try {
+        const messages = await Message.find({
+            $or: [
+                { sender: req.user.id, receiver: req.params.userId },
+                { sender: req.params.userId, receiver: req.user.id }
+            ]
+        })
+        .sort('createdAt');
+        
+        res.json(messages);
+    } catch (err) {
+        res.status(500).send('Server Error');
+    }
+});
+
+// Get all conversations
 router.get('/conversations', auth, async (req, res) => {
     try {
         const messages = await Message.find({
             $or: [
-                { from: req.user.id },
-                { to: req.user.id }
+                { sender: req.user.id },
+                { receiver: req.user.id }
             ]
         })
-        .sort('-createdAt')
-        .populate('from to', 'name profile.photo');
+        .sort('-createdAt');
         
         res.json(messages);
     } catch (err) {
-        res.status(500).send('Failed to fetch messages');
+        res.status(500).send('Server Error');
     }
 });
 
