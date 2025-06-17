@@ -9,30 +9,50 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Test route
-app.get('/', (req, res) => {
-    res.json({ message: 'Welcome to VivahSetu API' });
+// Explicitly set content type for all responses
+app.use((req, res, next) => {
+    res.setHeader('Content-Type', 'application/json');
+    next();
 });
 
-// Test route to check MongoDB connection
+// Test route
+app.get('/', (req, res) => {
+    res.json({ 
+        message: 'Welcome to VivahSetu API',
+        status: 'running'
+    });
+});
+
+// Test DB connection
 app.get('/test-db', async (req, res) => {
     try {
         await mongoose.connect(process.env.MONGO_URI);
-        res.json({ message: 'MongoDB Connected Successfully' });
+        res.json({ 
+            message: 'MongoDB Connected Successfully',
+            status: 'connected'
+        });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ 
+            error: err.message,
+            status: 'failed'
+        });
     }
 });
 
 // Basic registration route
 app.post('/api/auth/register', async (req, res) => {
     try {
+        const { name, email, password } = req.body;
         res.json({ 
-            message: 'Registration route working',
-            receivedData: req.body 
+            message: 'Registration endpoint working',
+            receivedData: { name, email },
+            status: 'success'
         });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ 
+            error: err.message,
+            status: 'failed'
+        });
     }
 });
 
@@ -47,3 +67,5 @@ mongoose.connect(process.env.MONGO_URI)
     .catch(err => {
         console.error('MongoDB connection error:', err.message);
     });
+
+module.exports = app;
