@@ -19,6 +19,49 @@ app.get('/', (req, res) => {
 // Add this new route to your server.js
 
 // Search Profiles
+// Search Profiles - with better error handling
+app.get('/api/search', async (req, res) => {
+    try {
+        // Get search parameters from query string
+        const { gender, ageFrom, ageTo, caste, location } = req.query;
+
+        // Sample profiles for testing
+        const profiles = [
+            {
+                name: "Test Profile 1",
+                gender: "Male",
+                age: 28,
+                caste: "Hindu",
+                location: "Mumbai",
+                education: "B.Tech",
+                occupation: "Software Engineer"
+            },
+            {
+                name: "Test Profile 2",
+                gender: "Female",
+                age: 25,
+                caste: "Hindu",
+                location: "Delhi",
+                education: "M.B.A",
+                occupation: "Business Analyst"
+            }
+        ];
+
+        // Return all profiles for now
+        res.json({
+            success: true,
+            count: profiles.length,
+            profiles: profiles
+        });
+
+    } catch (err) {
+        console.error('Search error:', err);
+        res.status(500).json({ 
+            success: false,
+            message: 'Error performing search'
+        });
+    }
+});
 app.post('/api/search', async (req, res) => {
     try {
         const {
