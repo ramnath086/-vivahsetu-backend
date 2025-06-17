@@ -23,6 +23,7 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // Routes
 // Add this line with other routes
+app.use('/api/admin', require('./routes/admin'));
 app.use('/api/interest', require('./routes/interest'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/profile', require('./routes/profile'));
