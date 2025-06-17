@@ -12,6 +12,21 @@ const userSchema = new mongoose.Schema({
     photo: String,
     additionalPhotos: [String]  // For premium users
 }
+        // Add these fields in your User schema
+isPremium: {
+    type: Boolean,
+    default: false
+},
+premiumPlan: {
+    type: String,
+    enum: ['silver', 'gold', 'platinum'],
+    default: null
+},
+premiumValidTill: {
+    type: Date,
+    default: null
+},
+paymentId: String
     profile: {
         // Personal Details
         gender: String,
