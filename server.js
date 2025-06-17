@@ -57,6 +57,7 @@ app.get('/api/profiles', async (req, res) => {
     try {
         const profiles = [
             {
+                id: "1",
                 name: "Test Profile 1",
                 gender: "Male",
                 age: 28,
@@ -65,6 +66,7 @@ app.get('/api/profiles', async (req, res) => {
                 occupation: "Software Engineer"
             },
             {
+                id: "2",
                 name: "Test Profile 2",
                 gender: "Female",
                 age: 25,
@@ -87,19 +89,10 @@ app.get('/api/profiles', async (req, res) => {
     }
 });
 
-// Search Profiles
-app.get('/api/search', (req, res) => {
-    try {
-        // Get search parameters
-        const { gender, ageFrom, ageTo, location } = req.query;
-
-        // Sample profiles (same as above for now)
-        // Add this with your other routes
-
 // View Single Profile
-app.get('/api/profile/:id', (req, res) => {
+app.get('/api/profiles/:id', (req, res) => {
     try {
-        // For now, return a sample detailed profile
+        // Sample detailed profile
         const profile = {
             id: req.params.id,
             name: "Test Profile 1",
@@ -145,8 +138,15 @@ app.get('/api/profile/:id', (req, res) => {
         });
     }
 });
+
+// Search Profiles
+app.get('/api/search', (req, res) => {
+    try {
+        const { gender, ageFrom, ageTo, location } = req.query;
+
         const profiles = [
             {
+                id: "1",
                 name: "Test Profile 1",
                 gender: "Male",
                 age: 28,
@@ -155,6 +155,7 @@ app.get('/api/profile/:id', (req, res) => {
                 occupation: "Software Engineer"
             },
             {
+                id: "2",
                 name: "Test Profile 2",
                 gender: "Female",
                 age: 25,
@@ -186,10 +187,4 @@ const PORT = process.env.PORT || 5000;
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
         console.log('MongoDB Connected');
-        app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-    })
-    .catch(err => {
-        console.error('MongoDB connection error:', err.message);
-    });
-
-module.exports = app;
+        app.listen(PORT, () => console.log(`Server 
