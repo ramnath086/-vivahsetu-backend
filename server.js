@@ -94,6 +94,57 @@ app.get('/api/search', (req, res) => {
         const { gender, ageFrom, ageTo, location } = req.query;
 
         // Sample profiles (same as above for now)
+        // Add this with your other routes
+
+// View Single Profile
+app.get('/api/profile/:id', (req, res) => {
+    try {
+        // For now, return a sample detailed profile
+        const profile = {
+            id: req.params.id,
+            name: "Test Profile 1",
+            gender: "Male",
+            age: 28,
+            location: {
+                city: "Mumbai",
+                state: "Maharashtra",
+                country: "India"
+            },
+            education: {
+                degree: "B.Tech",
+                college: "IIT Delhi",
+                year: 2020
+            },
+            occupation: {
+                type: "Software Engineer",
+                company: "Google",
+                income: "20-30 LPA"
+            },
+            family: {
+                fatherOccupation: "Business",
+                motherOccupation: "Homemaker",
+                siblings: 1
+            },
+            preferences: {
+                ageRange: "25-30",
+                location: "Mumbai, Delhi",
+                education: "Any Graduate"
+            }
+        };
+
+        res.json({
+            success: true,
+            profile: profile
+        });
+
+    } catch (err) {
+        res.status(500).json({ 
+            success: false,
+            message: 'Failed to fetch profile',
+            error: err.message
+        });
+    }
+});
         const profiles = [
             {
                 name: "Test Profile 1",
