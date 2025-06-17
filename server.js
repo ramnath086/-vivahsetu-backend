@@ -9,109 +9,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Test route
+// Welcome route
 app.get('/', (req, res) => {
     res.json({ 
         message: 'Welcome to VivahSetu API',
         status: 'running'
     });
-});
-// Add this new route to your server.js
-
-// Search Profiles
-// Search Profiles - with better error handling
-app.get('/api/search', async (req, res) => {
-    try {
-        // Get search parameters from query string
-        const { gender, ageFrom, ageTo, caste, location } = req.query;
-
-        // Sample profiles for testing
-        const profiles = [
-            {
-                name: "Test Profile 1",
-                gender: "Male",
-                age: 28,
-                caste: "Hindu",
-                location: "Mumbai",
-                education: "B.Tech",
-                occupation: "Software Engineer"
-            },
-            {
-                name: "Test Profile 2",
-                gender: "Female",
-                age: 25,
-                caste: "Hindu",
-                location: "Delhi",
-                education: "M.B.A",
-                occupation: "Business Analyst"
-            }
-        ];
-
-        // Return all profiles for now
-        res.json({
-            success: true,
-            count: profiles.length,
-            profiles: profiles
-        });
-
-    } catch (err) {
-        console.error('Search error:', err);
-        res.status(500).json({ 
-            success: false,
-            message: 'Error performing search'
-        });
-    }
-});
-app.post('/api/search', async (req, res) => {
-    try {
-        const {
-            gender,
-            ageFrom,
-            ageTo,
-            caste,
-            location
-        } = req.body;
-
-        // For now, return filtered dummy data
-        const profiles = [
-            {
-                name: "Test Profile 1",
-                gender: "Male",
-                age: 28,
-                caste: "Hindu",
-                location: "Mumbai",
-                education: "B.Tech",
-                occupation: "Software Engineer"
-            },
-            {
-                name: "Test Profile 2",
-                gender: "Female",
-                age: 25,
-                caste: "Hindu",
-                location: "Delhi",
-                education: "M.B.A",
-                occupation: "Business Analyst"
-            }
-        ];
-
-        res.json({
-            message: "Search results",
-            results: profiles,
-            filters: {
-                gender,
-                ageFrom,
-                ageTo,
-                caste,
-                location
-            }
-        });
-
-    } catch (err) {
-        res.status(500).json({ 
-            error: 'Search failed',
-            message: err.message 
-        });
-    }
 });
 
 // Create Profile
@@ -152,27 +55,76 @@ app.post('/api/profile/create', async (req, res) => {
 // Get All Profiles
 app.get('/api/profiles', async (req, res) => {
     try {
-        // For now, return dummy data
         const profiles = [
             {
                 name: "Test Profile 1",
                 gender: "Male",
                 age: 28,
-                location: "Mumbai"
+                location: "Mumbai",
+                education: "B.Tech",
+                occupation: "Software Engineer"
             },
             {
                 name: "Test Profile 2",
                 gender: "Female",
                 age: 25,
-                location: "Delhi"
+                location: "Delhi",
+                education: "M.B.A",
+                occupation: "Business Analyst"
             }
         ];
 
-        res.json(profiles);
+        res.json({
+            success: true,
+            count: profiles.length,
+            profiles: profiles
+        });
     } catch (err) {
         res.status(500).json({ 
             error: 'Failed to fetch profiles',
             message: err.message 
+        });
+    }
+});
+
+// Search Profiles
+app.get('/api/search', (req, res) => {
+    try {
+        // Get search parameters
+        const { gender, ageFrom, ageTo, location } = req.query;
+
+        // Sample profiles (same as above for now)
+        const profiles = [
+            {
+                name: "Test Profile 1",
+                gender: "Male",
+                age: 28,
+                location: "Mumbai",
+                education: "B.Tech",
+                occupation: "Software Engineer"
+            },
+            {
+                name: "Test Profile 2",
+                gender: "Female",
+                age: 25,
+                location: "Delhi",
+                education: "M.B.A",
+                occupation: "Business Analyst"
+            }
+        ];
+
+        res.json({
+            success: true,
+            parameters: { gender, ageFrom, ageTo, location },
+            count: profiles.length,
+            profiles: profiles
+        });
+
+    } catch (err) {
+        res.status(500).json({ 
+            success: false,
+            message: 'Search failed',
+            error: err.message
         });
     }
 });
