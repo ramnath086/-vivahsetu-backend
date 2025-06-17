@@ -1,57 +1,172 @@
 const express = require('express');
 const router = express.Router();
-const razorpay = require('../config/razorpay');
 const auth = require('../middleware/auth');
-const Payment = require('../models/Payment');
 const User = require('../models/User');
 
-// Create payment order
-router.post('/create-order', auth, async (req, res) => {
-    try {
-        const options = {
-            amount: 49900, // ₹499
-            currency: "INR",
-            receipt: `order_${Date.now()}`
-        };
+// Premium Plans Configuration
+const PREMIUM_PLANS = {
+    silver: {
+        id: 'silver',
+        name: 'Silver Package',
+        price: 499,
+        duration: 30, // days
+        features: [
+            'View contact details',
+            'Send direct messages',
+            'Advanced search filters'
+        ]
+    },
+    gold: {
+        id: 'gold',
+        name: 'Gold Package',
+        price: 999,
+        duration: 90, // days
+        features: [
+            'All Silver features',
+            'Upload multiple photos',
+            'Priority in search results',
+            'See profile visitors'
+        ]
+    },
+    platinum: {
+        id: 'platinum',
+        name: 'Platinum Package',
+        price: 1999,
+        duration: 180, // days
+        features: [
+            'All Gold features',
+            'Dedicated relationship manager',
+            'Background verification',
+            'Premium badge',
+            'Horoscope matching'
+        ]
+    }
+};
 
-        const order = await razorpay.orders.create(options);
-        
-        const payment = new Payment({
-            user: req.user.id,
-            orderId: order.id,
-            amount: options.amount,
-            plan: 'monthly'
+// Get all premium plans
+router.get('/plans', (req, res) => {
+    try {
+        res.json({
+            success: true,
+            plans: PREMIUM_PLANS
         });
-        
-        await payment.save();
-        res.json(order);
     } catch (err) {
-        res.status(500).send('Payment creation failed');
+        res.status(500).json({ msg: 'Server Error' });
     }
 });
 
-// Verify payment
+// Get user's premium status
+router.get('/status', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        
+        if (!user.isPremium) {
+            return res.json({
+                isPremium: false,
+                message: 'No active premium membership'
+            });
+        }
+
+        res.json({
+            isPremium: true,
+            plan: user.premiumPlan,
+            features: PREMIUM_PLANS[user.premiumPlan].features,
+            validTill: user.premiumValidTill
+        });
+    } catch (err) {
+        res.status(500).json({ msg: 'Server Error' });
+    }
+});
+
+// Initiate premium purchase
+router.post('/purchase', auth, async (req, res) => {
+    try {
+        const { planId } = req.body;
+        
+        // Validate plan
+        if (!PREMIUM_PLANS[planId]) {
+            return res.status(400).json({ msg: 'Invalid plan selected' });
+        }
+
+        const plan = PREMIUM_PLANS[planId];
+        
+        // Create order
+        const orderData = {
+            amount: plan.price * 100, // Convert to paise
+            currency: 'INR',
+            receipt: `premium_${Date.now()}_${req.user.id}`,
+            notes: {
+                userId: req.user.id,
+                planId: planId
+            }
+        };
+
+        res.json({
+            success: true,
+            plan: plan,
+            orderData: orderData
+        });
+    } catch (err) {
+        res.status(500).json({ msg: 'Server Error' });
+    }
+});
+
+// Verify premium purchase
 router.post('/verify', auth, async (req, res) => {
     try {
-        const { razorpay_payment_id, razorpay_order_id } = req.body;
-        
-        const payment = await Payment.findOne({ orderId: razorpay_order_id });
-        payment.status = 'completed';
-        payment.paymentId = razorpay_payment_id;
-        
-        const validUntil = new Date();
-        validUntil.setMonth(validUntil.getMonth() + 1);
-        payment.validUntil = validUntil;
-        
-        await payment.save();
+        const { planId, paymentId } = req.body;
         
         const user = await User.findById(req.user.id);
+        const plan = PREMIUM_PLANS[planId];
+
+        if (!plan) {
+            return res.status(400).json({ msg: 'Invalid plan' });
+        }
+
+        // Calculate validity
+        const validTill = new Date();
+        validTill.setDate(validTill.getDate() + plan.duration);
+
+        // Update user premium status
         user.isPremium = true;
+        user.premiumPlan = planId;
+        user.premiumValidTill = validTill;
+        user.paymentId = paymentId;
+
         await user.save();
-        
-        res.json({ success: true });
+
+        res.json({
+            success: true,
+            message: 'Premium activated successfully',
+            plan: plan,
+            validTill: validTill
+        });
     } catch (err) {
-        res.status(500).send('Payment verification failed');
+        res.status(500).json({ msg: 'Server Error' });
+    }
+});
+
+// Get premium features
+router.get('/features', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        
+        if (!user.isPremium) {
+            return res.json({
+                features: [],
+                message: 'Upgrade to premium to unlock features'
+            });
+        }
+
+        const plan = PREMIUM_PLANS[user.premiumPlan];
+        
+        res.json({
+            success: true,
+            features: plan.features,
+            plan: plan.name
+        });
+    } catch (err) {
+        res.status(500).json({ msg: 'Server Error' });
     }
 });
 
