@@ -16,6 +16,7 @@ const interestSchema = new mongoose.Schema({
         enum: ['pending', 'accepted', 'rejected'],
         default: 'pending'
     },
+    message: String,
     createdAt: {
         type: Date,
         default: Date.now
