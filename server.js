@@ -9,15 +9,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Add error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ 
-        error: 'Something broke!',
-        message: err.message 
-    });
-});
-
 // Test route
 app.get('/', (req, res) => {
     res.json({ 
@@ -26,42 +17,70 @@ app.get('/', (req, res) => {
     });
 });
 
-// Basic registration route
-app.post('/api/auth/register', async (req, res) => {
+// Create Profile
+app.post('/api/profile/create', async (req, res) => {
     try {
-        console.log('Registration request received:', req.body);  // Debug log
-
-        const { name, email, password } = req.body;
-
-        // Validate input
-        if (!name || !email || !password) {
-            return res.status(400).json({ 
-                msg: 'Please enter all fields',
-                received: { name, email, password: '****' }
-            });
-        }
-
-        // Create user object (without saving yet)
-        const user = {
+        const {
             name,
-            email,
-            password
+            gender,
+            age,
+            caste,
+            location,
+            education,
+            occupation
+        } = req.body;
+
+        const profile = {
+            name,
+            gender,
+            age,
+            caste,
+            location,
+            education,
+            occupation
         };
 
-        // Return success response
-        res.json({ 
-            message: 'Registration successful',
-            user: { name, email }
+        res.json({
+            message: 'Profile created successfully',
+            profile
         });
-
     } catch (err) {
-        console.error('Registration error:', err);  // Debug log
         res.status(500).json({ 
-            error: 'Registration failed',
+            error: 'Profile creation failed',
             message: err.message 
         });
     }
 });
+
+// Get All Profiles
+app.get('/api/profiles', async (req, res) => {
+    try {
+        // For now, return dummy data
+        const profiles = [
+            {
+                name: "Test Profile 1",
+                gender: "Male",
+                age: 28,
+                location: "Mumbai"
+            },
+            {
+                name: "Test Profile 2",
+                gender: "Female",
+                age: 25,
+                location: "Delhi"
+            }
+        ];
+
+        res.json(profiles);
+    } catch (err) {
+        res.status(500).json({ 
+            error: 'Failed to fetch profiles',
+            message: err.message 
+        });
+    }
+});
+
+const PORT = process.env.PORT || 5000;
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
@@ -72,7 +91,5 @@ mongoose.connect(process.env.MONGO_URI)
     .catch(err => {
         console.error('MongoDB connection error:', err.message);
     });
-
-const PORT = process.env.PORT || 5000;
 
 module.exports = app;
